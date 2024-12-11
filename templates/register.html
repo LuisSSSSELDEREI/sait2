@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - Счастливый кусочек{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h3>Регистрация</h3>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="phone">Номер телефона:</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" 
+                           placeholder="89991234567" required pattern="[0-9]{11}">
+                    <small class="form-text">Введите номер телефона в формате: 89991234567</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <p>Уже есть аккаунт? <a href="{{ url_for('login') }}" style="color: #ff6b6b;">Войти</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

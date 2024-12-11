@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа - Пиццерия</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="order-page">
+        <div class="order-container">
+            <h1>Оформление заказа</h1>
+            
+            <div class="selected-pizza">
+                <img src="{{ url_for('static', filename='images/' + pizza.image) }}" alt="{{ pizza.name }}" class="pizza-preview">
+                <h2>{{ pizza.name }}</h2>
+                <p>{{ pizza.description }}</p>
+            </div>
+
+            <form action="{{ url_for('add_to_cart') }}" method="POST" class="order-form">
+                <input type="hidden" name="pizza_id" value="{{ pizza.id }}">
+                
+                <!-- Выбор размера -->
+                <div class="size-selection">
+                    <h3>Выберите размер:</h3>
+                    <div class="size-options">
+                        {% for size_key, size in pizza.sizes.items() %}
+                        <div class="size-option">
+                            <input type="radio" name="size" id="size-{{ size_key }}" 
+                                   value="{{ size_key }}" required
+                                   data-multiplier="{{ size.multiplier }}">
+                            <label for="size-{{ size_key }}">
+                                {{ size.name }}
+                                <span class="price">{{ (pizza.base_price * size.multiplier)|round|int }} ₽</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Дополнительные ингредиенты -->
+                <div class="ingredients-selection">
+                    <h3>Дополнительные ингредиенты:</h3>
+                    <div class="ingredients-options">
+                        {% for ingredient in pizza.ingredients %}
+                        <div class="ingredient-option">
+                            <input type="checkbox" name="ingredients[]" 
+                                   id="ingredient-{{ loop.index }}"
+                                   value="{{ ingredient.name }}"
+                                   data-price="{{ ingredient.price }}">
+                            <label for="ingredient-{{ loop.index }}">
+                                {{ ingredient.name }}
+                                <span class="price">+{{ ingredient.price }} ₽</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Итоговая цена -->
+                <div class="total-price">
+                    <h3>Итого: <span id="totalPrice">{{ pizza.base_price }} ₽</span></h3>
+                </div>
+
+                <!-- Кнопки -->
+                <div class="order-buttons">
+                    <a href="{{ url_for('index') }}" class="button secondary">Назад к меню</a>
+                    <button type="submit" class="button primary">Добавить в корзину</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Функция обновления цены
+        function updatePrice() {
+            const basePrice = {{ pizza.base_price }};
+            let total = basePrice;
+            
+            // Учитываем размер
+            const selectedSize = document.querySelector('input[name="size"]:checked');
+            if (selectedSize) {
+                total *= parseFloat(selectedSize.dataset.multiplier);
+            }
+            
+            // Учитываем дополнительные ингредиенты
+            document.querySelectorAll('input[name="ingredients[]"]:checked').forEach(ingredient => {
+                total += parseFloat(ingredient.dataset.price);
+            });
+            
+            // Обновляем отображение цены
+            document.getElementById('totalPrice').textContent = Math.round(total) + ' ₽';
+        }
+
+        // Добавляем обработчики событий
+        document.querySelectorAll('input[name="size"]').forEach(radio => {
+            radio.addEventListener('change', updatePrice);
+        });
+
+        document.querySelectorAll('input[name="ingredients[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updatePrice);
+        });
+
+        // Выбираем маленький размер по умолчанию
+        const defaultSize = document.querySelector('input[name="size"]');
+        if (defaultSize) {
+            defaultSize.checked = true;
+            updatePrice();
+        }
+    </script>
+</body>
+</html>

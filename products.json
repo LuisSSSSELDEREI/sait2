@@ -1,0 +1,191 @@
+{
+    "pizzas": [
+        {
+            "id": 1,
+            "name": "Пепперони",
+            "description": "Классическая пицца с пепперони и сыром моцарелла",
+            "base_price": 599,
+            "image": "pepperoni.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Бекон", "price": 89}
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Маргарита",
+            "description": "Традиционная пицца с томатным соусом и сыром моцарелла",
+            "base_price": 499,
+            "image": "margherita.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Бекон", "price": 89}
+            ]
+        },
+        {
+            "id": 3,
+            "name": "4 сыра",
+            "description": "Изысканная пицца с четырьмя видами сыра",
+            "base_price": 649,
+            "image": "4sir.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Бекон", "price": 89}
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Мясная",
+            "description": "Сытная пицца с разными видами мяса",
+            "base_price": 699,
+            "image": "myasnaya.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Бекон", "price": 89}
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Вегетарианская",
+            "description": "Легкая пицца с овощами",
+            "base_price": 549,
+            "image": "veget.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Оливки", "price": 69}
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Гавайская",
+            "description": "Пицца с ананасами, ветчиной и сыром моцарелла",
+            "base_price": 649,
+            "image": "hawaiian.jpg",
+            "sizes": {
+                "small": {"name": "Маленькая (25 см)", "multiplier": 1},
+                "medium": {"name": "Средняя (30 см)", "multiplier": 1.2},
+                "large": {"name": "Большая (35 см)", "multiplier": 1.4}
+            },
+            "ingredients": [
+                {"name": "Дополнительный сыр", "price": 79},
+                {"name": "Грибы", "price": 59},
+                {"name": "Халапеньо", "price": 59},
+                {"name": "Бекон", "price": 89}
+            ]
+        }
+    ],
+    "combos": [
+        {
+            "id": 1,
+            "name": "Комбо Пепперони",
+            "description": "Пепперони 30см + напиток 0.5л",
+            "price": 699,
+            "image": "combo1.png"
+        },
+        {
+            "id": 2,
+            "name": "Комбо Дуэт",
+            "description": "Две пиццы 25см на выбор",
+            "price": 999,
+            "image": "2pizz.jpg"
+        },
+        {
+            "id": 3,
+            "name": "Комбо корпоратив",
+            "description": "Комбо для корпоратива: 3 пиццы + 2 напитка",
+            "price": 1999,
+            "image": "kombo3.jpg"
+        }
+    ],
+    "drinks": [
+        {
+            "id": 1,
+            "name": "Кока-кола",
+            "description": "Газированный напиток",
+            "variants": [
+                {"size": "0.5л", "price": 99},
+                {"size": "1.0л", "price": 169},
+                {"size": "1.5л", "price": 229}
+            ],
+            "image": "kola.jpg"
+        },
+        {
+            "id": 2,
+            "name": "Спрайт",
+            "description": "Газированный напиток",
+            "variants": [
+                {"size": "0.5л", "price": 99},
+                {"size": "1.0л", "price": 169},
+                {"size": "1.5л", "price": 229}
+            ],
+            "image": "sprait.jpg"
+        },
+        {
+            "id": 3,
+            "name": "Фанта",
+            "description": "Газированный напиток",
+            "variants": [
+                {"size": "0.5л", "price": 99},
+                {"size": "1.0л", "price": 169},
+                {"size": "1.5л", "price": 229}
+            ],
+            "image": "fanta.jpg"
+        },
+        {
+            "id": 4,
+            "name": "Сок",
+            "description": "Натуральный сок в ассортименте",
+            "variants": [
+                {"size": "0.5л", "price": 99},
+                {"size": "1.0л", "price": 169},
+                {"size": "1.5л", "price": 229}
+            ],
+            "image": "juice.jpg"
+        }
+    ],
+    "contacts": {
+        "address": "г. Москва, ул. Примерная, д. 123",
+        "phone": "+7 (495) 123-45-67",
+        "email": "info@счастливыйкусочек.рф",
+        "working_hours": "Ежедневно с 10:00 до 23:00",
+        "social_media": {
+            "vk": "#",
+            "telegram": "#"
+        }
+    }
+}

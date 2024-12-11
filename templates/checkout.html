@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-content">
+        <!-- Левая панель с формой -->
+        <div class="checkout-form-panel">
+            <div class="panel-header">
+                <h2>Оформление заказа</h2>
+                <p>Заполните данные для доставки</p>
+            </div>
+            
+            <form method="POST" class="checkout-form">
+                <div class="form-section">
+                    <h3>Контактные данные</h3>
+                    <div class="form-group">
+                        <label for="name">Ваше имя</label>
+                        <input type="text" id="name" name="name" required 
+                               placeholder="Как к вам обращаться?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" name="phone" required 
+                               placeholder="+7 (___) ___-__-__">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Адрес доставки</h3>
+                    <div class="form-group">
+                        <label for="address">Улица и дом</label>
+                        <input type="text" id="address" name="address" required 
+                               placeholder="Например: ул. Ленина, 1">
+                    </div>
+                    
+                    <div class="address-details">
+                        <div class="form-group">
+                            <label for="entrance">Подъезд</label>
+                            <input type="number" id="entrance" name="entrance" 
+                                   placeholder="1" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="floor">Этаж</label>
+                            <input type="number" id="floor" name="floor" 
+                                   placeholder="5" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="apartment">Квартира</label>
+                            <input type="number" id="apartment" name="apartment" 
+                                   placeholder="42" min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Способ оплаты</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cash" checked>
+                            <span class="radio-custom"></span>
+                            <div class="payment-label">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Наличными курьеру</span>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="card">
+                            <span class="radio-custom"></span>
+                            <div class="payment-label">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Картой курьеру</span>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="online">
+                            <span class="radio-custom"></span>
+                            <div class="payment-label">
+                                <i class="fas fa-globe"></i>
+                                <span>Онлайн оплата</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Комментарий к заказу</h3>
+                    <div class="form-group">
+                        <textarea id="comment" name="comment" 
+                                  placeholder="Например: Не звонить в дверь, есть домофон"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Правая панель с деталями заказа -->
+        <div class="order-summary-panel">
+            <div class="panel-header">
+                <h2>Ваш заказ</h2>
+                <a href="{{ url_for('cart') }}" class="edit-cart-link">
+                    <i class="fas fa-edit"></i> Изменить
+                </a>
+            </div>
+
+            <div class="order-items">
+                {% for item in cart %}
+                <div class="order-item">
+                    <div class="item-info">
+                        <h4>{{ item.name }}</h4>
+                        {% if item.size %}
+                        <span class="item-size">{{ item.size }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <span class="item-quantity">{{ item.quantity or 1 }} шт.</span>
+                        <span class="item-price">{{ item.price }} ₽</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="order-total">
+                <div class="total-row">
+                    <span>Сумма заказа:</span>
+                    <span>{{ sum(item.price * (item.quantity or 1) for item in cart) }} ₽</span>
+                </div>
+                <div class="total-row">
+                    <span>Доставка:</span>
+                    <span>0 ₽</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Итого к оплате:</span>
+                    <span>{{ sum(item.price * (item.quantity or 1) for item in cart) }} ₽</span>
+                </div>
+            </div>
+
+            <button type="submit" form="checkout-form" class="submit-order">
+                Оформить заказ
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем маску для телефона -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Маска для телефона
+    var phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        IMask(phoneInput, {
+            mask: '+{7} (000) 000-00-00'
+        });
+    }
+});
+</script>
+{% endblock %}

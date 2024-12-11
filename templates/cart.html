@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - Счастливый кусочек</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">Счастливый кусочек</a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}#menu">Меню</a>
+                <a href="{{ url_for('index') }}#about">О нас</a>
+                <a href="{{ url_for('index') }}#contacts">Контакты</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="cart-container">
+        <h1>Корзина</h1>
+        {% if cart_items %}
+            <div class="cart-items">
+                {% for item in cart_items %}
+                <div class="cart-item" data-index="{{ loop.index0 }}">
+                    <div class="item-info">
+                        <h3>{{ item.name }}</h3>
+                        <p>{{ item.description if item.description else '' }}</p>
+                        {% if item.size %}
+                            <p>Размер: {{ item.size }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="item-controls">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus" onclick="updateQuantity({{ loop.index0 }}, -1)">-</button>
+                            <span class="quantity">{{ item.quantity|default(1) }}</span>
+                            <button class="quantity-btn plus" onclick="updateQuantity({{ loop.index0 }}, 1)">+</button>
+                        </div>
+                        <div class="price">{{ item.price }} ₽</div>
+                        <button class="remove-btn" onclick="removeItem({{ loop.index0 }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="cart-summary">
+                <div class="total">
+                    <span>Итого:</span>
+                    <span class="total-price">{{ total }} ₽</span>
+                </div>
+                <div class="cart-actions">
+                    <button class="clear-cart" onclick="clearCart()">Очистить корзину</button>
+                    <a href="{{ url_for('checkout') }}" class="checkout-btn">Оформить заказ</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Ваша корзина пуста</p>
+                <a href="{{ url_for('index') }}" class="continue-shopping">Вернуться к меню</a>
+            </div>
+        {% endif %}
+    </main>
+
+    <script>
+        function updateQuantity(index, change) {
+            const itemElement = document.querySelector(`.cart-item[data-index="${index}"]`);
+            const quantityElement = itemElement.querySelector('.quantity');
+            let quantity = parseInt(quantityElement.textContent) + change;
+            
+            if (quantity > 0) {
+                fetch('/update_cart_item', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        index: index,
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        quantityElement.textContent = quantity;
+                        updateCartTotal(data.total);
+                        updateCartCount(data.cart_count);
+                    }
+                });
+            } else {
+                removeItem(index);
+            }
+        }
+
+        function removeItem(index) {
+            fetch('/remove_from_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    index: index
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const itemElement = document.querySelector(`.cart-item[data-index="${index}"]`);
+                    itemElement.remove();
+                    updateCartTotal(data.total);
+                    updateCartCount(data.cart_count);
+                    
+                    if (data.cart_count === 0) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+
+        function clearCart() {
+            fetch('/clear_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+
+        function updateCartTotal(total) {
+            document.querySelector('.total-price').textContent = total + ' ₽';
+        }
+
+        function updateCartCount(count) {
+            const cartCount = document.querySelector('.cart-count');
+            if (cartCount) {
+                cartCount.textContent = count;
+            }
+        }
+    </script>
+</body>
+</html>

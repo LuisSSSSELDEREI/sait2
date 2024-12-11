@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Счастливый кусочек</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section {
+            display: none;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-section {
+            display: flex;
+            height: calc(100vh - 80px);
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+
+        .chat-list {
+            width: 300px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            position: relative;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages-container::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            position: relative;
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 15px;
+            position: relative;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 14px;
+            width: calc(100% - 100px);
+        }
+
+        .message-input button {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            padding: 0 10px;
+            font-size: 20px;
+        }
+
+        .message-input button:hover {
+            color: #0056b3;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+            clear: both;
+            position: relative;
+            padding: 10px 15px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            float: left;
+            background-color: #f1f0f0;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.admin {
+            float: right;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7em;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .quick-replies {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .quick-replies.show {
+            display: block;
+        }
+
+        .quick-replies-toggle {
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quick-replies-toggle:hover {
+            color: #0056b3;
+        }
+
+        .quick-replies-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            padding: 5px;
+        }
+
+        .quick-reply {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-reply:hover {
+            background-color: #e9ecef;
+            border-color: #007bff;
+        }
+
+        .chat-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-item:hover {
+            background-color: #f0f7ff;
+        }
+
+        .chat-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #007bff;
+        }
+
+        .chat-user-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .user-phone {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .message-count {
+            color: #666;
+            font-size: 0.9em;
+            background-color: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .last-message {
+            color: #666;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .selected-user-info {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .selected-user-info i {
+            margin-right: 10px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-pizza-slice"></i>
+                <span>Админ-панель</span>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-section="orders">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Заказы</span>
+                </button>
+                <button class="nav-btn" data-section="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>Чат</span>
+                    <span class="message-badge" id="unread-messages">0</span>
+                </button>
+            </nav>
+            <div class="admin-info">
+                <i class="fas fa-user-shield"></i>
+                <span>Администратор</span>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Секция заказов -->
+            <section id="orders" class="section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-clipboard-list"></i> Управление заказами</h2>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Поиск заказов...">
+                        </div>
+                        <button class="refresh-btn" onclick="loadOrders()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="orders-grid" id="orders-container">
+                    <!-- Заказы будут добавлены через JavaScript -->
+                </div>
+            </section>
+
+            <!-- Секция чата -->
+            <section id="chat" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-comments"></i> Чат с клиентами</h2>
+                </div>
+                <div class="chat-section">
+                    <div class="chat-list">
+                        {% for user_id, chat_data in chats.items() %}
+                        <div class="chat-item" data-user-id="{{ user_id }}">
+                            <div class="chat-user-info">
+                                <span class="user-phone">{{ chat_data.user.phone }}</span>
+                                <span class="message-count">{{ chat_data.messages|length }} сообщений</span>
+                            </div>
+                            <div class="last-message">
+                                {% if chat_data.messages %}
+                                    {{ chat_data.messages[-1].text }}
+                                {% else %}
+                                    Нет сообщений
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="chat-messages">
+                        <div class="selected-user-info">
+                            <i class="fas fa-user"></i>
+                            <span class="user-phone">Выберите чат</span>
+                        </div>
+                        <div class="messages-container">
+                            <div class="no-messages">Выберите чат для просмотра сообщений</div>
+                        </div>
+                        <div class="chat-input-container">
+                            <div class="message-input">
+                                <input type="text" placeholder="Введите сообщение..." id="message-input">
+                                <button class="quick-replies-toggle" id="quick-replies-toggle">
+                                    <i class="fas fa-reply-all"></i>
+                                </button>
+                                <button id="send-message">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="quick-replies">
+                                <div class="quick-replies-list">
+                                    <!-- Быстрые ответы будут добавлены через JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Переключение между секциями
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.section');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetSection = this.dataset.section;
+                    
+                    // Убираем активный класс у всех кнопок и секций
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+                    
+                    // Добавляем активный класс нужной кнопке и секции
+                    this.classList.add('active');
+                    document.getElementById(targetSection).classList.add('active');
+                });
+            });
+        });
+
+        // Загрузка заказов
+        function loadOrders() {
+            fetch('/api/admin/orders')
+                .then(response => response.json())
+                .then(orders => {
+                    const container = document.getElementById('orders-container');
+                    container.innerHTML = '';
+                    orders.forEach(order => {
+                        const card = createOrderCard(order);
+                        container.appendChild(card);
+                    });
+                });
+        }
+
+        // Создание карточки заказа
+        function createOrderCard(order) {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <div class="order-header">
+                    <span class="order-id">#${order.id}</span>
+                    <span class="order-status ${order.status}">${order.status}</span>
+                </div>
+                <div class="order-content">
+                    <div class="order-info">
+                        <p><i class="fas fa-user"></i> ${order.name}</p>
+                        <p><i class="fas fa-phone"></i> ${order.phone}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${order.address}</p>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.name}</span>
+                                <span>x${item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-total">
+                        <span>Итого:</span>
+                        <span>${order.total} ₽</span>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <button onclick="updateOrderStatus(${order.id}, 'confirmed')" class="action-btn confirm">
+                        <i class="fas fa-check"></i> Подтвердить
+                    </button>
+                    <button onclick="updateOrderStatus(${order.id}, 'completed')" class="action-btn complete">
+                        <i class="fas fa-flag-checkered"></i> Завершить
+                    </button>
+                    <button onclick="updateOrderStatus(${order.id}, 'cancelled')" class="action-btn cancel">
+                        <i class="fas fa-times"></i> Отменить
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Обновление статуса заказа
+        function updateOrderStatus(orderId, status) {
+            fetch('/api/admin/update_order_status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id: orderId, status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadOrders();
+                }
+            });
+        }
+
+        // Функции чата
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatSection = document.getElementById('chat');
+            const chatList = document.querySelector('.chat-list');
+            const messagesContainer = document.querySelector('.messages-container');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-message');
+            const selectedUserInfo = document.querySelector('.selected-user-info');
+            const quickRepliesList = document.querySelector('.quick-replies-list');
+            const quickRepliesToggle = document.getElementById('quick-replies-toggle');
+            const quickRepliesContainer = document.querySelector('.quick-replies');
+            let selectedUserId = null;
+
+            // Обработчик кнопки быстрых ответов
+            quickRepliesToggle.addEventListener('click', function() {
+                quickRepliesContainer.classList.toggle('show');
+            });
+
+            // Закрываем быстрые ответы при клике вне их области
+            document.addEventListener('click', function(e) {
+                if (!quickRepliesContainer.contains(e.target) && 
+                    !quickRepliesToggle.contains(e.target)) {
+                    quickRepliesContainer.classList.remove('show');
+                }
+            });
+
+            // Загрузка быстрых ответов
+            function loadQuickReplies() {
+                fetch('/api/quick-replies')
+                    .then(response => response.json())
+                    .then(data => {
+                        quickRepliesList.innerHTML = '';
+                        data.forEach(reply => {
+                            const button = document.createElement('div');
+                            button.className = 'quick-reply';
+                            button.textContent = reply;
+                            button.addEventListener('click', () => {
+                                messageInput.value = reply;
+                                messageInput.focus();
+                                quickRepliesContainer.classList.remove('show');
+                            });
+                            quickRepliesList.appendChild(button);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Загружаем быстрые ответы при инициализации
+            loadQuickReplies();
+
+            // Функция загрузки сообщений
+            function loadMessages(userId) {
+                if (!userId) return;
+                
+                messagesContainer.innerHTML = '<div class="messages-loading">Загрузка сообщений...</div>';
+                
+                fetch(`/get_chat_messages/${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        messagesContainer.innerHTML = '';
+                        if (data.length === 0) {
+                            messagesContainer.innerHTML = '<div class="no-messages">Нет сообщений</div>';
+                            return;
+                        }
+                        
+                        data.forEach(msg => {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message ${msg.sender === 'admin' ? 'admin' : 'user'}`;
+                            
+                            const messageContent = document.createElement('div');
+                            messageContent.className = 'message-content';
+                            messageContent.textContent = msg.message;
+                            
+                            const messageTime = document.createElement('span');
+                            messageTime.className = 'message-time';
+                            messageTime.textContent = new Date(msg.timestamp).toLocaleString();
+                            
+                            messageDiv.appendChild(messageContent);
+                            messageDiv.appendChild(messageTime);
+                            messagesContainer.appendChild(messageDiv);
+                        });
+                        
+                        // Прокрутка к последнему сообщению
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        messagesContainer.innerHTML = '<div class="error-message">Ошибка загрузки сообщений</div>';
+                    });
+            }
+
+            // Функция отправки сообщения
+            function sendMessage() {
+                if (!selectedUserId || !messageInput.value.trim()) return;
+
+                const message = messageInput.value.trim();
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: selectedUserId,
+                        message: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        messageInput.value = '';
+                        loadMessages(selectedUserId);
+                    } else {
+                        console.error('Error:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
+            // Обработчик выбора пользователя
+            chatList.addEventListener('click', function(e) {
+                const chatItem = e.target.closest('.chat-item');
+                if (!chatItem) return;
+
+                // Убираем активный класс у всех элементов
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Добавляем активный класс выбранному элементу
+                chatItem.classList.add('active');
+
+                // Получаем ID пользователя
+                selectedUserId = chatItem.dataset.userId;
+                const userPhone = chatItem.querySelector('.user-phone').textContent;
+
+                // Обновляем информацию о выбранном пользователе
+                document.querySelector('.selected-user-info .user-phone').textContent = userPhone;
+
+                // Загружаем сообщения
+                loadMessages(selectedUserId);
+            });
+
+            // Обработчики отправки сообщения
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
